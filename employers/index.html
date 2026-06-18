@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inclufy — For Employers</title>
+  <style>
+    :root,[data-theme="light"]{--bg:#f7f8fc;--bg2:#fff;--bg3:#fafbfd;--border:#eaedf3;--text:#1e1e2f;--text2:#636e72;--text3:#999;--editor-bg:#fff;--card-bg:#fff;--accent:#6c5ce7}
+    [data-theme="dark"]{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#14142a;--border:#252540;--text:#e0e0e8;--text2:#aaa;--text3:#666;--editor-bg:#14142a;--card-bg:#1a1a2e;--accent:#a29bfe}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Header */
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .logo span { color: var(--accent); }
+    .tag { font-size: 0.6rem; background: #6c5ce7; color: #fff; padding: 2px 8px; border-radius: 4px; margin-left: 6px; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.8px; }
+    .score-area { display: flex; align-items: center; gap: 0.6rem; }
+    .score-value { font-size: 2rem; font-weight: 800; line-height: 1; transition: color 0.3s; }
+    .score-value.good { color: #00b894; }
+    .score-value.ok { color: #e17055; }
+    .score-value.bad { color: #d63031; }
+    .score-value.idle { color: #ccc; }
+    .score-sub { font-size: 0.65rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+    .score-anim { animation: bump 0.4s ease; }
+    @keyframes bump { 50% { transform: scale(1.15); } }
+
+    /* Main split */
+    .main { display: flex; flex: 1; overflow: hidden; }
+
+    /* Left: Editor */
+    .left { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); min-width: 0; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: var(--bg3); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .toolbar-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 600; }
+    .toolbar select { font-size: 0.85rem; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg2); color: var(--text2); cursor: pointer; }
+    .editor-wrap { flex: 1; overflow-y: auto; padding: 1.2rem 1.5rem; }
+    #editor { min-height: 100%; font-size: 0.92rem; line-height: 2; outline: none; white-space: pre-wrap; word-wrap: break-word; color: var(--text); }
+    #editor:empty::before { content: attr(data-placeholder); color: var(--text3); pointer-events: none; }
+
+    /* Highlights */
+    mark.hl-red { background: rgba(214,48,49,0.12); border-bottom: 2px solid rgba(214,48,49,0.6); border-radius: 3px; padding: 1px 2px; cursor: pointer; text-decoration: none; color: inherit; }
+    mark.hl-yellow { background: rgba(253,203,110,0.18); border-bottom: 2px solid rgba(253,203,110,0.7); border-radius: 3px; padding: 1px 2px; cursor: pointer; text-decoration: none; color: inherit; }
+    mark.hl-fixed { background: rgba(0,184,148,0.12); border-bottom: 2px solid rgba(0,184,148,0.5); border-radius: 3px; padding: 1px 2px; animation: flash 0.6s; }
+    @keyframes flash { 0% { background: rgba(0,184,148,0.35); } }
+
+    /* Signals */
+    .signals { display: flex; flex-wrap: wrap; gap: 6px; padding: 0.5rem 1rem; border-top: 1px solid var(--border); background: var(--bg2); flex-shrink: 0; }
+    .sig { font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
+    .sig-y { background: #e8f8f5; color: #00856a; }
+    .sig-n { background: #fde8e8; color: #b33a3a; }
+
+    .right { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--bg3); }
+    .panel-top { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--bg2); }
+    .panel-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 600; }
+    .fix-all { padding: 5px 14px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .fix-all:hover { background: #5a4bd1; }
+    .fix-all:disabled { background: var(--border); color: var(--text3); cursor: default; }
+    .fix-all.done { background: #00b894; }
+    .cards { flex: 1; overflow-y: auto; padding: 0.8rem; }
+
+    .card { background: var(--card-bg); border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; border-left: 4px solid; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.1s; }
+    .card:hover { transform: translateX(2px); }
+    .card.red { border-color: #d63031; }
+    .card.yellow { border-color: #fdcb6e; }
+    .card.fixed { border-color: #00b894; opacity: 0.4; }
+    .card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .card-cat { font-size: 0.65rem; background: #f1f2f6; padding: 2px 6px; border-radius: 4px; color: #666; }
+    .card-phrase { font-weight: 700; font-size: 0.88rem; color: #2d3436; margin-bottom: 4px; }
+    .card-explain { font-size: 0.78rem; color: #777; margin-bottom: 6px; line-height: 1.4; }
+    .card-fix { display: flex; align-items: center; gap: 8px; }
+    .card-suggestion { font-size: 0.8rem; color: #00b894; font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .apply { padding: 4px 10px; background: #00b894; color: #fff; border: none; border-radius: 5px; font-size: 0.72rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+    .apply:hover { background: #00a383; }
+
+    .empty-state { text-align: center; color: #bbb; margin-top: 4rem; font-size: 0.85rem; }
+
+    @media (max-width: 900px) {
+      .main { flex-direction: column; }
+      .right { width: 100%; max-height: 50vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div><span class="logo"><span>Inclu</span>fy</span><span class="tag">For Employers</span></div>
+    <div class="score-area">
+      <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:1.1rem;line-height:1">🌙</button>
+      <div>
+        <div class="score-value idle" id="score">—</div>
+        <div class="score-sub">accessibility score</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="left">
+      <div class="toolbar">
+        <span class="toolbar-label">Editor</span>
+        <select onchange="loadSample(this.value)">
+          <option value="">Load sample...</option>
+          <option value="bad">❌ Exclusionary</option>
+          <option value="mixed">⚠️ Typical</option>
+          <option value="good">✅ Inclusive</option>
+        </select>
+      </div>
+      <div class="editor-wrap">
+        <div id="editor" contenteditable="true" data-placeholder="Paste a job posting here. Issues will be highlighted automatically." oninput="debounced()"></div>
+      </div>
+      <div class="signals" id="signals"></div>
+    </div>
+
+    <div class="right">
+      <div class="panel-top">
+        <span class="panel-label">Issues <span id="count">(0)</span></span>
+        <button class="fix-all" id="fixbtn" onclick="fixAll()" disabled>Fix All</button>
+      </div>
+      <div class="cards" id="cards">
+        <div class="empty-state">Type or paste a job posting<br>to see suggestions here</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../theme.js"></script>
+  <script src="../samples.js"></script>
+  <script src="../patterns.js"></script>
+  <script>
+let flags=[], timer=null;
+function loadSample(k){if(!k)return;document.getElementById('editor').textContent=SAMPLES[k];run();}
+function debounced(){clearTimeout(timer);timer=setTimeout(run,350);}
+
+function run(){
+  const ed=document.getElementById('editor');
+  const text=ed.textContent||ed.innerText;
+  if(!text.trim()){
+    document.getElementById('score').textContent='—';
+    document.getElementById('score').className='score-value idle';
+    document.getElementById('cards').innerHTML='<div class="empty-state">Type or paste a job posting<br>to see suggestions here</div>';
+    document.getElementById('count').textContent='(0)';
+    document.getElementById('fixbtn').disabled=true;
+    document.getElementById('signals').innerHTML='';
+    return;
+  }
+  const res=analyzePosting(text);
+  flags=res.flags;
+  const old=parseInt(document.getElementById('score').textContent)||0;
+
+  // Score
+  const sv=document.getElementById('score');
+  sv.textContent=res.score;
+  sv.className='score-value '+(res.score>=75?'good':res.score>=50?'ok':'bad');
+  if(old!==res.score){sv.classList.add('score-anim');setTimeout(()=>sv.classList.remove('score-anim'),400);}
+
+  // Highlights
+  let html=esc(text);
+  const sorted=[...flags].sort((a,b)=>b.phrase.length-a.phrase.length);
+  sorted.forEach((f,i)=>{
+    const e=esc(f.phrase);
+    const cls=f.severity==='red'?'hl-red':'hl-yellow';
+    html=html.replace(new RegExp(escR(e),'gi'),`<mark class="${cls}" onclick="jump(${i})">${e}</mark>`);
+  });
+  ed.innerHTML=html;
+
+  // Signals
+  document.getElementById('signals').innerHTML=res.inclusionResults.map(s=>`<span class="sig ${s.present?'sig-y':'sig-n'}">${s.icon} ${s.label}</span>`).join('');
+
+  // Cards
+  document.getElementById('count').textContent=`(${flags.length})`;
+  document.getElementById('fixbtn').disabled=!flags.length;
+  document.getElementById('fixbtn').textContent=flags.length?`Fix All (${flags.length})`:'Fix All';
+  document.getElementById('fixbtn').className='fix-all';
+  
+  if(!flags.length){
+    document.getElementById('cards').innerHTML='<div class="empty-state" style="color:#00b894;">✓ No issues found. This posting looks accessible.</div>';
+    return;
+  }
+  document.getElementById('cards').innerHTML=flags.map((f,i)=>`<div class="card ${f.severity}" id="c${i}"><div class="card-top"><span class="card-cat">${f.icon} ${f.category}</span></div><div class="card-phrase">"${f.phrase}"</div><div class="card-explain">${f.explanation.slice(0,90)}${f.explanation.length>90?'...':''}</div><div class="card-fix"><span class="card-suggestion">→ ${f.suggestion}</span><button class="apply" onclick="fix(${i})">Apply</button></div></div>`).join('');
+}
+
+function fix(i){
+  const ed=document.getElementById('editor');
+  let text=ed.textContent||ed.innerText;
+  const f=flags[i];if(!f)return;
+  text=text.replace(new RegExp(escR(f.phrase),'i'),f.suggestion);
+  ed.textContent=text;
+  const c=document.getElementById('c'+i);if(c)c.classList.add('fixed');
+  setTimeout(run,80);
+}
+
+function fixAll(){
+  const btn=document.getElementById('fixbtn');
+  btn.textContent='Fixing...';btn.disabled=true;
+  const ed=document.getElementById('editor');
+  let text=ed.textContent||ed.innerText;
+  flags.forEach(f=>{if(f.suggestion&&!f.suggestion.startsWith('Consider'))text=text.replace(new RegExp(escR(f.phrase),'gi'),f.suggestion);});
+  ed.textContent=text;
+  setTimeout(()=>{run();btn.textContent='✓ Done!';btn.className='fix-all done';setTimeout(()=>{btn.className='fix-all';},2000);},200);
+}
+
+function jump(i){const c=document.getElementById('c'+i);if(c)c.scrollIntoView({behavior:'smooth',block:'center'});}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escR(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+  </script>
+</body>
+</html>

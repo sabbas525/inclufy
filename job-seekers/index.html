@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inclufy — For Job Seekers</title>
+  <style>
+    :root,[data-theme="dark"]{--bg:#0d0d1a;--bg2:#111125;--bg3:#14142a;--border:#252540;--text:#e8e8f0;--text2:#bbb;--text3:#666;--accent:#a29bfe;--changed-bg:rgba(0,184,148,0.12);--changed-color:#55efc4;--changed-border:rgba(85,239,196,0.5)}
+    [data-theme="light"]{--bg:#f5f6fa;--bg2:#fff;--bg3:#f9fafb;--border:#e2e5ed;--text:#1e1e2f;--text2:#444;--text3:#888;--accent:#6c5ce7;--changed-bg:rgba(0,184,148,0.1);--changed-color:#00856a;--changed-border:rgba(0,133,106,0.4)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+    .header{display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1.5rem;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+    .logo{font-size:1.2rem;font-weight:300;letter-spacing:0.5px}
+    .logo b{font-weight:700;color:var(--accent)}
+    .tag{font-size:0.6rem;background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px;margin-left:6px;vertical-align:middle;text-transform:uppercase;font-weight:700}
+    .header-right{display:flex;align-items:center;gap:0.8rem}
+    .verdict-pill{padding:5px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;display:none}
+    .verdict-pill.show{display:inline-block}
+    .pill-green{background:rgba(0,184,148,0.15);color:#00b894;border:1px solid rgba(0,184,148,0.3)}
+    .pill-yellow{background:rgba(253,203,110,0.12);color:#e17055;border:1px solid rgba(253,203,110,0.3)}
+    .pill-red{background:rgba(255,118,117,0.12);color:#ff7675;border:1px solid rgba(255,118,117,0.3)}
+    .theme-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:1.1rem;line-height:1}
+
+    .main{flex:1;display:flex;overflow:hidden}
+
+    .panel-left{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0}
+    .panel-bar{padding:0.5rem 1rem;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .panel-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600}
+    .panel-bar select{font-size:0.85rem;padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);cursor:pointer}
+    .text-area{flex:1;overflow-y:auto;padding:1.2rem}
+    .text-area textarea{width:100%;height:100%;min-height:200px;background:transparent;border:none;color:var(--text);font-size:0.9rem;font-family:inherit;resize:none;outline:none;line-height:1.8}
+    .text-area textarea::placeholder{color:var(--text3)}
+    .btn-bar{padding:0.6rem 1rem;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+    .btn-bar button{width:100%;padding:0.7rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:0.9rem;font-weight:700;cursor:pointer;transition:opacity 0.2s}
+    .btn-bar button:hover{opacity:0.85}
+
+    .panel-right{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+    .output-scroll{flex:1;overflow-y:auto;padding:1.2rem}
+    .empty-state{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:0.9rem;text-align:center}
+
+    .simplified-text{font-size:0.9rem;line-height:2;color:var(--text);white-space:pre-wrap;word-wrap:break-word}
+    .changed{background:var(--changed-bg);border-bottom:2px solid var(--changed-border);border-radius:2px;padding:0 3px;color:var(--changed-color)}
+
+    .tabs-bar{display:flex;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+    .tab{flex:1;padding:0.7rem 0.5rem;text-align:center;font-size:0.78rem;color:var(--text3);cursor:pointer;border-right:1px solid var(--border);transition:color 0.2s;font-weight:500}
+    .tab:last-child{border-right:none}
+    .tab:hover{color:var(--accent)}
+    .tab.active{color:var(--accent);background:var(--bg3);border-top:2px solid var(--accent)}
+
+    .overlay{position:absolute;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);border-radius:12px 12px 0 0;max-height:55%;overflow-y:auto;padding:1.2rem;transform:translateY(100%);transition:transform 0.25s ease;z-index:10;box-shadow:0 -4px 20px rgba(0,0,0,0.15)}
+    .overlay.show{transform:translateY(0)}
+    .overlay-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem}
+    .overlay-title{font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent);font-weight:600}
+    .overlay-close{font-size:0.85rem;color:var(--text3);cursor:pointer;padding:5px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border)}
+    .overlay-close:hover{color:var(--text);background:var(--border)}
+
+    .flag-row{display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0;border-bottom:1px solid var(--border)}
+    .flag-row:last-child{border:none}
+    .flag-icon{font-size:1rem;flex-shrink:0;margin-top:2px}
+    .flag-body{font-size:0.85rem;color:var(--text)}
+    .flag-note{font-size:0.75rem;color:var(--text3);margin-top:3px}
+
+    .q-row{padding:0.5rem 0;font-size:0.85rem;color:var(--text2);border-bottom:1px solid var(--border)}
+    .q-row:last-child{border:none}
+    .q-row::before{content:'💬 '}
+
+    .change-row{display:flex;gap:0.5rem;padding:0.5rem 0;font-size:0.85rem;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+    .change-row:last-child{border:none}
+    .change-old{color:#ff7675;text-decoration:line-through}
+    .change-new{color:var(--changed-color)}
+    .change-arrow{color:var(--text3)}
+
+    @media(max-width:800px){.main{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div><span class="logo">Inclu<b>fy</b></span><span class="tag">For Job Seekers</span></div>
+    <div class="header-right">
+      <span class="verdict-pill" id="pill"></span>
+      <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="panel-left">
+      <div class="panel-bar">
+        <span class="panel-label">Original Posting</span>
+        <select onchange="if(this.value){load(this.value)}">
+          <option value="">Load sample...</option>
+          <option value="bad">🚫 Overwhelming</option>
+          <option value="mixed">⚡ Typical</option>
+          <option value="good">🌿 Clear</option>
+        </select>
+      </div>
+      <div class="text-area"><textarea id="input" placeholder="Paste a job posting here..."></textarea></div>
+      <div class="btn-bar"><button onclick="simplify()">Simplify This Posting</button></div>
+    </div>
+
+    <div class="panel-right">
+      <div class="panel-bar"><span class="panel-label">Simplified Version</span></div>
+      <div class="output-scroll" id="output"><div class="empty-state">Paste a posting on the left<br>and click Simplify</div></div>
+
+      <div class="overlay" id="ov-flags">
+        <div class="overlay-header"><span class="overlay-title">⚠️ ND Concerns</span><span class="overlay-close" onclick="closeOverlay()">✕ Close</span></div>
+        <div id="ov-flags-content"></div>
+      </div>
+      <div class="overlay" id="ov-questions">
+        <div class="overlay-header"><span class="overlay-title">💬 Questions to Ask</span><span class="overlay-close" onclick="closeOverlay()">✕ Close</span></div>
+        <div id="ov-questions-content"></div>
+      </div>
+      <div class="overlay" id="ov-changes">
+        <div class="overlay-header"><span class="overlay-title">🔄 What Was Changed</span><span class="overlay-close" onclick="closeOverlay()">✕ Close</span></div>
+        <div id="ov-changes-content"></div>
+      </div>
+
+      <div class="tabs-bar" id="tabs" style="display:none">
+        <div class="tab" onclick="showOverlay('flags',this)">⚠️ Concerns</div>
+        <div class="tab" onclick="showOverlay('questions',this)">💬 Questions</div>
+        <div class="tab" onclick="showOverlay('changes',this)">🔄 Changes</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../theme.js"></script>
+  <script src="../samples.js"></script>
+  <script src="../patterns.js"></script>
+  <script>
+function load(k){document.getElementById('input').value=SAMPLES[k];}
+
+function simplify(){
+  const text=document.getElementById('input').value.trim();
+  if(!text)return;
+  const{score,flags,inclusionResults}=analyzePosting(text);
+
+  const pill=document.getElementById('pill');
+  pill.classList.add('show');
+  if(score>=75){pill.className='verdict-pill show pill-green';pill.textContent='🌿 Accessible';}
+  else if(score>=50){pill.className='verdict-pill show pill-yellow';pill.textContent='⚡ Some concerns';}
+  else{pill.className='verdict-pill show pill-red';pill.textContent='🚧 Caution';}
+
+  let simplified=text;
+  const replacements=[];
+  flags.forEach(f=>{
+    if(f.suggestion&&!f.suggestion.startsWith('Consider')){
+      const regex=new RegExp(f.phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+      if(regex.test(simplified)){
+        simplified=simplified.replace(regex,`{{CHANGE:${f.suggestion}}}`);
+        replacements.push({old:f.phrase,neu:f.suggestion});
+      }
+    }
+  });
+
+  let html=esc(simplified);
+  html=html.replace(/\{\{CHANGE:(.*?)\}\}/g,'<span class="changed">$1</span>');
+  document.getElementById('output').innerHTML=`<div class="simplified-text">${html}</div>`;
+  document.getElementById('tabs').style.display='flex';
+
+  // Concerns
+  const concerns=[];
+  if(text.match(/open[- ]plan/i))concerns.push({icon:'🔊',text:'Open plan office',note:'May be noisy. Ask about quiet zones.'});
+  if(text.match(/mandatory.{0,10}social|team social|team drinks/i))concerns.push({icon:'🎉',text:'Mandatory social events',note:'Required socializing beyond work tasks.'});
+  if(!text.match(/remote|hybrid|work from home|WFH|flexible/i))concerns.push({icon:'🏢',text:'No remote option mentioned',note:'Might be fully on-site. Ask.'});
+  if(text.match(/fast[- ]paced|always[- ]on|high[- ]energy/i))concerns.push({icon:'⚡',text:'High-pace environment',note:'May mean unpredictable workload.'});
+  if(text.match(/video introduction|personality test|group exercise/i))concerns.push({icon:'📹',text:'Extra application steps',note:'Additional cognitive load to apply.'});
+  if(!text.match(/accommodat|adjustment|accessibility/i))concerns.push({icon:'♿',text:'No accommodations mentioned',note:'You can still ask.'});
+  if(text.match(/like a family/i))concerns.push({icon:'👨‍👩‍👧',text:'"Like a family" culture',note:'Often means blurred work-life boundaries.'});
+
+  document.getElementById('ov-flags-content').innerHTML=concerns.length?
+    concerns.map(c=>`<div class="flag-row"><span class="flag-icon">${c.icon}</span><div><div class="flag-body">${c.text}</div><div class="flag-note">${c.note}</div></div></div>`).join(''):
+    '<div style="color:#00b894;font-size:0.85rem">✓ No major concerns detected</div>';
+
+  // Questions
+  const questions=['Can I receive interview questions in advance?','What does a typical week look like?'];
+  if(concerns.some(c=>c.icon==='🔊'))questions.unshift('Are there quiet spaces or headphone-friendly areas?');
+  if(concerns.some(c=>c.icon==='🏢'))questions.unshift('Is any remote work flexibility possible?');
+  if(concerns.some(c=>c.icon==='♿'))questions.push('Do you offer adjustments for the interview process?');
+  document.getElementById('ov-questions-content').innerHTML=questions.map(q=>`<div class="q-row">${q}</div>`).join('');
+
+  // Changes
+  document.getElementById('ov-changes-content').innerHTML=replacements.length?
+    replacements.map(r=>`<div class="change-row"><span class="change-old">${esc(r.old)}</span><span class="change-arrow">→</span><span class="change-new">${esc(r.neu)}</span></div>`).join(''):
+    '<div style="color:var(--text3);font-size:0.85rem">No changes needed</div>';
+}
+
+function showOverlay(id,btn){closeOverlay();document.getElementById('ov-'+id).classList.add('show');btn.classList.add('active');}
+function closeOverlay(){document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  </script>
+</body>
+</html>
