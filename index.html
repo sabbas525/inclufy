@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tools that make job postings more accessible for neurodivergent people.">
+  <title>Inclufy</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #0f0f1a; color: #e8e8f0; }
+    main { width: min(860px, 100%); }
+    h1 { margin: 0; font-size: clamp(2.5rem, 8vw, 5rem); }
+    h1 span { color: #a29bfe; }
+    .intro { max-width: 650px; margin: 12px 0 32px; color: #b8b8c8; font-size: 1.1rem; line-height: 1.6; }
+    .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    a { display: block; padding: 26px; border: 1px solid #30304d; border-radius: 16px; background: #1a1a2e; color: inherit; text-decoration: none; transition: transform .2s, border-color .2s; }
+    a:hover, a:focus-visible { transform: translateY(-3px); border-color: #a29bfe; outline: none; }
+    h2 { margin: 0 0 8px; font-size: 1.2rem; }
+    p { margin: 0; color: #aaa; line-height: 1.5; }
+    .open { display: inline-block; margin-top: 18px; color: #a29bfe; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Inclu<span>fy</span></h1>
+    <p class="intro">Two tools that make job postings more accessible for neurodivergent people. Choose the tool built for you.</p>
+    <section class="tools" aria-label="Inclufy tools">
+      <a href="/employers/">
+        <h2>For Employers</h2>
+        <p>Find exclusionary language in a job posting and replace it with clearer, more inclusive wording.</p>
+        <span class="open">Open tool →</span>
+      </a>
+      <a href="/job-seekers/">
+        <h2>For Job Seekers</h2>
+        <p>Simplify a job posting, translate jargon, and identify potential concerns before applying.</p>
+        <span class="open">Open tool →</span>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
