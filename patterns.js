@@ -113,11 +113,33 @@ const PATTERNS = [
 ];
 
 const INCLUSION_SIGNALS = [
-  { regex: /\b(flexible|remote|hybrid|work from home|WFH)\b/gi, label: "Flexibility mentioned", icon: "🏠" },
-  { regex: /\b(accommodat|adjustment|accessibility|support available|reasonable adjustment)\b/gi, label: "Accommodations mentioned", icon: "♿" },
-  { regex: /\b(diversity|inclusion|equity|neurodiversity|disability confident|equal opportunity)\b/gi, label: "DEI commitment mentioned", icon: "🌍" },
-  { regex: /\b(part[- ]time option|reduced hours|flexible schedule|flexible hours|flexitime)\b/gi, label: "Schedule flexibility", icon: "⏰" },
+  { regex: /\b(flexible|remote|hybrid|work from home|WFH)\b/i, label: "Flexibility mentioned", icon: "🏠" },
+  { regex: /\b(accommodat(?:e|es|ed|ing|ion|ions)|adjustments?|accessibility|support available|reasonable adjustments?)\b/i, label: "Accommodations mentioned", icon: "♿" },
+  { regex: /\b(diversity|inclusion|equity|neurodiversity|disability confident|equal opportunity)\b/i, label: "DEI commitment mentioned", icon: "🌍" },
+  { regex: /\b(part[- ]time option|reduced hours|flexible schedule|flexible hours|flexitime)\b/i, label: "Schedule flexibility", icon: "⏰" },
 ];
+
+function hasAffirmativeSignal(text, regex) {
+  const flags = `${regex.flags.replace(/g/g, '')}g`;
+  const matcher = new RegExp(regex.source, flags);
+
+  for (const match of text.matchAll(matcher)) {
+    const start = match.index ?? 0;
+    const end = start + match[0].length;
+    const before = text.slice(Math.max(0, start - 60), start);
+    const after = text.slice(end, Math.min(text.length, end + 60));
+    const clauseBoundary = /(?:[.!?;\n]|,\s*|\bbut\b|\bhowever\b)/i;
+    const beforeClause = before.split(clauseBoundary).pop() || '';
+    const afterClause = after.split(clauseBoundary)[0] || '';
+
+    const negatedBefore = /\b(?:no|not|without|never|neither|lack(?:s|ing)?|do(?:es)?\s+not|don['’]t|doesn['’]t|is\s+not|isn['’]t|are\s+not|aren['’]t|cannot|can['’]t)\b(?:[\s:,-]+\w+){0,5}[\s:,-]*$/i.test(beforeClause);
+    const negatedAfter = /^[^.!?\n]{0,40}\b(?:not|never)\s+(?:available|offered|allowed|permitted|possible|provided|supported)\b|^[^.!?\n]{0,40}\bunavailable\b/i.test(afterClause);
+
+    if (!negatedBefore && !negatedAfter) return true;
+  }
+
+  return false;
+}
 
 // Scoring engine
 function analyzePosting(text) {
@@ -154,7 +176,7 @@ function analyzePosting(text) {
   const inclusionResults = INCLUSION_SIGNALS.map(signal => ({
     label: signal.label,
     icon: signal.icon,
-    present: signal.regex.test(text)
+    present: hasAffirmativeSignal(text, signal.regex)
   }));
 
   // Penalise missing inclusion signals
