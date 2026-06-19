@@ -15,6 +15,7 @@
     .logo b{font-weight:700;color:var(--accent)}
     .tag{font-size:0.6rem;background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px;margin-left:6px;vertical-align:middle;text-transform:uppercase;font-weight:700}
     .header-right{display:flex;align-items:center;gap:0.8rem}
+    .disclaimer{padding:0.45rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);color:var(--text2);font-size:0.72rem;line-height:1.4;text-align:center;flex-shrink:0}
     .verdict-pill{padding:5px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;display:none}
     .verdict-pill.show{display:inline-block}
     .pill-green{background:rgba(0,184,148,0.15);color:#00b894;border:1px solid rgba(0,184,148,0.3)}
@@ -83,6 +84,8 @@
     </div>
   </div>
 
+  <div class="disclaimer" role="note">This tool reviews wording only; it cannot determine whether a workplace or role is accessible.</div>
+
   <div class="main">
     <div class="panel-left">
       <div class="panel-bar">
@@ -136,7 +139,7 @@ function simplify(){
 
   const pill=document.getElementById('pill');
   pill.classList.add('show');
-  if(score>=75){pill.className='verdict-pill show pill-green';pill.textContent='🌿 Accessible';}
+  if(score>=75){pill.className='verdict-pill show pill-green';pill.textContent='🌿 Fewer language barriers detected';}
   else if(score>=50){pill.className='verdict-pill show pill-yellow';pill.textContent='⚡ Some concerns';}
   else{pill.className='verdict-pill show pill-red';pill.textContent='🚧 Caution';}
 

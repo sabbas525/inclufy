@@ -22,6 +22,7 @@
     .score-value.bad { color: #d63031; }
     .score-value.idle { color: #ccc; }
     .score-sub { font-size: 0.65rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+    .disclaimer { padding: 0.45rem 1rem; background: var(--bg3); border-bottom: 1px solid var(--border); color: var(--text2); font-size: 0.72rem; line-height: 1.4; text-align: center; flex-shrink: 0; }
     .score-anim { animation: bump 0.4s ease; }
     @keyframes bump { 50% { transform: scale(1.15); } }
 
@@ -87,10 +88,12 @@
       <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:1.1rem;line-height:1">🌙</button>
       <div>
         <div class="score-value idle" id="score">—</div>
-        <div class="score-sub">accessibility score</div>
+        <div class="score-sub">Inclusive-language indicator</div>
       </div>
     </div>
   </div>
+
+  <div class="disclaimer" role="note">This tool reviews wording only; it cannot determine whether a workplace or role is accessible.</div>
 
   <div class="main">
     <div class="left">
@@ -170,7 +173,7 @@ function run(){
   document.getElementById('fixbtn').className='fix-all';
   
   if(!flags.length){
-    document.getElementById('cards').innerHTML='<div class="empty-state" style="color:#00b894;">✓ No issues found. This posting looks accessible.</div>';
+    document.getElementById('cards').innerHTML='<div class="empty-state" style="color:#00b894;">✓ No issues from our current checklist were detected.</div>';
     return;
   }
   document.getElementById('cards').innerHTML=flags.map((f,i)=>`<div class="card ${f.severity}" id="c${i}"><div class="card-top"><span class="card-cat">${f.icon} ${f.category}</span></div><div class="card-phrase">"${f.phrase}"</div><div class="card-explain">${f.explanation.slice(0,90)}${f.explanation.length>90?'...':''}</div><div class="card-fix"><span class="card-suggestion">→ ${f.suggestion}</span><button class="apply" onclick="fix(${i})">Apply</button></div></div>`).join('');
